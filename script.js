@@ -107,7 +107,7 @@
       description: "Subscribe to our YouTube channel to support us",
       duration: 30,
       type: "link",
-      link: "https://youtube.com/@example",
+      link: "https://youtube.com/@skytup/?sub_confirmation=1",
       buttonText: "Subscribe Now",
     },
     {
@@ -116,7 +116,7 @@
       description: "Follow us on Instagram for latest updates",
       duration: 30,
       type: "link",
-      link: "https://instagram.com/example",
+      link: "https://instagram.com/skytupnet",
       buttonText: "Follow Us",
     },
     {
@@ -125,8 +125,8 @@
       description: "Join our Telegram community",
       duration: 30,
       type: "link",
-      link: "https://t.me/example",
-      buttonText: "Join Group",
+      link: "https://t.me/skytupnet",
+      buttonText: "Join Telegram Group",
     },
     {
       id: 4,
@@ -134,8 +134,8 @@
       description: "Like our Facebook page to stay connected",
       duration: 30,
       type: "link",
-      link: "https://facebook.com/example",
-      buttonText: "Like Page",
+      link: "https://facebook.com/skytup",
+      buttonText: "Like & Follow Page",
     },
     {
       id: 5,
@@ -143,7 +143,7 @@
       description: "Visit our official website",
       duration: 30,
       type: "link",
-      link: "https://skytup.com",
+      link: "https://www.skytup.com",
       buttonText: "Visit Now",
     },
     {
@@ -152,8 +152,17 @@
       description: "Follow us on Twitter for news and updates",
       duration: 30,
       type: "link",
-      link: "https://twitter.com/example",
+      link: "https://twitter.com/skythecoder",
       buttonText: "Follow",
+    },
+    {
+      id: 6,
+      title: "Subscribe to YouTube Channel",
+      description: "Subscribe to our YouTube channel to support us",
+      duration: 30,
+      type: "link",
+      link: "https://youtube.com/@dev_sky/?sub_confirmation=1",
+      buttonText: "Subscribe Now",
     },
   ];
 
