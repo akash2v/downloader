@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure File Download</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container" id="mainContainer">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-download"></i>
+        </div>
+        <h1>Your File is Ready</h1>
+        <p>Complete the steps below to access your download</p>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressBar"></div>
+      </div>
+
+      <div class="instruction-box">
+        <p>
+          <i class="fas fa-info-circle"></i> Complete all tasks to unlock your
+          download
+        </p>
+      </div>
+
+      <div class="tasks-container" id="tasksContainer"></div>
+
+      <div class="download-section">
+        <button class="download-button" id="downloadBtn" disabled>
+          <i class="fas fa-lock"></i>
+          <span>Complete All Tasks to Download</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        Copyright &copy; 2026
+        <a href="https://skytup.com" target="_blank">skytup.com</a>
+      </p>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
