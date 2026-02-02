@@ -103,66 +103,66 @@
   const taskPool = [
     {
       id: 1,
-      title: "Subscribe to YouTube Channel",
-      description: "Subscribe to our YouTube channel to support us",
-      duration: 30,
+      title: "Subscribe Our Youtube Channel!",
+      description: "Subscribe to our VIP YouTube channel for exclusive access!",
+      duration: 15,
       type: "link",
       link: "https://youtube.com/@skytup/?sub_confirmation=1",
-      buttonText: "Subscribe Now",
+      buttonText: "SUBSCRIBE & UNLOCK",
     },
     {
       id: 2,
-      title: "Follow on Instagram",
-      description: "Follow us on Instagram for latest updates",
-      duration: 30,
+      title: "Instagram",
+      description: "Follow our Instagram for behind-the-scenes secrets!",
+      duration: 15,
       type: "link",
       link: "https://instagram.com/skytupnet",
-      buttonText: "Follow Us",
+      buttonText: "FOLLOW & JOIN",
     },
     {
       id: 3,
       title: "Join Telegram Group",
-      description: "Join our Telegram community",
-      duration: 30,
+      description: "Join our exclusive Telegram for instant file updates!",
+      duration: 15,
       type: "link",
       link: "https://t.me/skytupnet",
-      buttonText: "Join Telegram Group",
+      buttonText: "JOIN & GET ALERTS",
     },
     {
       id: 4,
-      title: "Like Facebook Page",
-      description: "Like our Facebook page to stay connected",
-      duration: 30,
+      title: "Follow Facebook Page",
+      description: "Like our Facebook page to prove you're a real fan!",
+      duration: 15,
       type: "link",
       link: "https://facebook.com/skytup",
-      buttonText: "Like & Follow Page",
+      buttonText: "LIKE & BECOME A FAN",
     },
     {
       id: 5,
-      title: "Visit Website",
-      description: "Visit our official website",
-      duration: 30,
+      title: "VISIT OUR WebSite!",
+      description: "Explore our hidden website for more amazing content!",
+      duration: 15,
       type: "link",
       link: "https://www.skytup.com",
-      buttonText: "Visit Now",
+      buttonText: "VISIT THE VAULT",
     },
     {
       id: 6,
-      title: "Follow on Twitter",
-      description: "Follow us on Twitter for news and updates",
-      duration: 30,
+      title: "Follow on Twitter!",
+      description: "Follow us on Twitter for real-time news!",
+      duration: 15,
       type: "link",
       link: "https://twitter.com/skythecoder",
-      buttonText: "Follow",
+      buttonText: "FOLLOW FOR NEWS",
     },
     {
-      id: 6,
-      title: "Subscribe to YouTube Channel",
-      description: "Subscribe to our YouTube channel to support us",
-      duration: 30,
+      id: 7,
+      title: "LEVEL UP YOUR SKILLS!",
+      description: "Follow on GitHub for pro-level code and projects!",
+      duration: 15,
       type: "link",
-      link: "https://youtube.com/@dev_sky/?sub_confirmation=1",
-      buttonText: "Subscribe Now",
+      link: "https://github.com/akash2v",
+      buttonText: "LEVEL UP NOW",
     },
   ];
 
@@ -173,7 +173,6 @@
       this.completedTasks = new Set();
       this.currentTaskIndex = 0;
       this.timers = {};
-      this.focusActive = true;
 
       this.init();
     }
@@ -184,7 +183,6 @@
       this.selectRandomTasks();
       this.renderTasks();
       this.setupEventListeners();
-      this.initializeFocusTracking();
     }
 
     extractDownloadUrl() {
@@ -247,15 +245,6 @@
       });
     }
 
-    initializeFocusTracking() {
-      window.addEventListener("focus", () => {
-        this.focusActive = true;
-      });
-
-      window.addEventListener("blur", () => {
-        this.focusActive = false;
-      });
-    }
 
     startTask(taskId) {
       const task = this.selectedTasks.find((t) => t.id === taskId);
@@ -280,7 +269,7 @@
       let timeRemaining = task.duration;
 
       this.timers[taskId] = setInterval(() => {
-        if (task.type === "focus" && !this.focusActive) {
+        if (document.hidden) {
           timerDisplay.innerHTML =
             '<i class="fas fa-pause-circle"></i> Paused - Please focus on this tab';
           return;
@@ -337,7 +326,7 @@
       const downloadBtn = document.getElementById("downloadBtn");
       downloadBtn.disabled = false;
       downloadBtn.innerHTML =
-        '<i class="fas fa-download"></i><span>Download Your File Now</span>';
+        '<i class="fas fa-lock-open"></i><span>GET YOUR FILE NOW!</span>';
       downloadBtn.classList.add("ready");
 
       downloadBtn.addEventListener("click", () => {
