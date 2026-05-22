@@ -1,344 +1,222 @@
-// Security and anti-tampering system
 (function () {
   "use strict";
 
-  const securitySystem = {
-    initialWidth: window.innerWidth,
-    initialHeight: window.innerHeight,
-    devtoolsOpen: false,
-    violations: 0,
-
-    init() {
-      this.preventDevTools();
-      this.preventRightClick();
-      this.monitorResize();
-      this.preventKeyboardShortcuts();
-      this.detectDevTools();
-    },
-
-    triggerViolation() {
-      this.violations++;
-      if (this.violations >= 1) {
-        this.showErrorScreen();
-      }
-    },
-
-    showErrorScreen() {
-      document.body.innerHTML = `
-                        <div class="container">
-                            <div class="error-screen active">
-                                <div class="error-icon">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <h2>Invalid Activity Detected</h2>
-                                <p>Suspicious behavior has been detected. Please reload the page and try again.</p>
-                            </div>
-                        </div>
-                        <div class="footer">
-                            <p>Copyright &copy; 2026 <a href="https://skytup.com" target="_blank">skytup.com</a></p>
-                        </div>
-                    `;
-    },
-
-    preventRightClick() {
-      document.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        this.triggerViolation();
-      });
-    },
-
-    preventKeyboardShortcuts() {
-      document.addEventListener("keydown", (e) => {
-        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+Shift+C
-        if (
-          e.keyCode === 123 ||
-          (e.ctrlKey &&
-            e.shiftKey &&
-            (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
-          (e.ctrlKey && e.keyCode === 85)
-        ) {
-          e.preventDefault();
-          this.triggerViolation();
-        }
-      });
-    },
-
-    monitorResize() {
-      window.addEventListener("resize", () => {
-        const widthDiff = Math.abs(window.innerWidth - this.initialWidth);
-        const heightDiff = Math.abs(window.innerHeight - this.initialHeight);
-
-        if (widthDiff > 100 || heightDiff > 100) {
-          this.triggerViolation();
-        }
-      });
-    },
-
-    preventDevTools() {
-      setInterval(() => {
-        const start = new Date();
-        debugger;
-        const end = new Date();
-        if (end - start > 100) {
-          this.triggerViolation();
-        }
-      }, 1000);
-    },
-
-    detectDevTools() {
-      const element = new Image();
-      Object.defineProperty(element, "id", {
-        get: () => {
-          this.devtoolsOpen = true;
-          this.triggerViolation();
-        },
-      });
-      setInterval(() => {
-        console.log(element);
-      }, 1000);
-    },
-  };
-
-  // Task system with link support
   const taskPool = [
-    {
-      id: 1,
-      title: "Subscribe Our Youtube Channel!",
-      description: "Subscribe to our VIP YouTube channel for exclusive access!",
-      duration: 15,
-      type: "link",
-      link: "https://youtube.com/@skytup/?sub_confirmation=1",
-      buttonText: "SUBSCRIBE & UNLOCK",
-    },
-    {
-      id: 2,
-      title: "Instagram",
-      description: "Follow our Instagram for behind-the-scenes secrets!",
-      duration: 15,
-      type: "link",
-      link: "https://instagram.com/skytupnet",
-      buttonText: "FOLLOW & JOIN",
-    },
-    {
-      id: 3,
-      title: "Join Telegram Group",
-      description: "Join our exclusive Telegram for instant file updates!",
-      duration: 15,
-      type: "link",
-      link: "https://t.me/skytupnet",
-      buttonText: "JOIN & GET ALERTS",
-    },
-    {
-      id: 4,
-      title: "Follow Facebook Page",
-      description: "Like our Facebook page to prove you're a real fan!",
-      duration: 15,
-      type: "link",
-      link: "https://facebook.com/skytup",
-      buttonText: "LIKE & BECOME A FAN",
-    },
-    {
-      id: 5,
-      title: "VISIT OUR WebSite!",
-      description: "Explore our hidden website for more amazing content!",
-      duration: 15,
-      type: "link",
-      link: "https://www.skytup.com",
-      buttonText: "VISIT THE VAULT",
-    },
-    {
-      id: 6,
-      title: "Follow on Twitter!",
-      description: "Follow us on Twitter for real-time news!",
-      duration: 15,
-      type: "link",
-      link: "https://twitter.com/skythecoder",
-      buttonText: "FOLLOW FOR NEWS",
-    },
-    {
-      id: 7,
-      title: "LEVEL UP YOUR SKILLS!",
-      description: "Follow on GitHub for pro-level code and projects!",
-      duration: 15,
-      type: "link",
-      link: "https://github.com/akash2v",
-      buttonText: "LEVEL UP NOW",
-    },
+    { id: 1, title: "Official YouTube", description: "Follow our channel for official file updates and tutorials.", duration: 15, link: "https://youtube.com/@skytup/?sub_confirmation=1", buttonText: "Subscribe Now" },
+    { id: 2, title: "Instagram Profile", description: "Stay connected with our team on Instagram for news.", duration: 15, link: "https://instagram.com/skytupnet", buttonText: "Follow Us" },
+    { id: 3, title: "Telegram Channel", description: "Join our community for instant download alerts.", duration: 15, link: "https://t.me/skytupnet", buttonText: "Join Channel" },
+    { id: 4, title: "Facebook Hub", description: "Like our official page to join the community.", duration: 15, link: "https://facebook.com/skytup", buttonText: "Like Page" },
+    { id: 5, title: "Corporate Website", description: "Visit our main portal for more exclusive resources.", duration: 15, link: "https://www.skytup.com", buttonText: "Visit Portal" },
+    { id: 6, title: "Twitter / X", description: "Get real-time updates and community news.", duration: 15, link: "https://twitter.com/skythecoder", buttonText: "Follow Updates" },
+    { id: 7, title: "GitHub Projects", description: "Explore our open-source codebase and projects.", duration: 15, link: "https://github.com/akash2v", buttonText: "Explore Repo" },
   ];
 
-  class DownloadManager {
+  class Verifier {
     constructor() {
-      this.downloadUrl = null;
-      this.selectedTasks = [];
-      this.completedTasks = new Set();
-      this.currentTaskIndex = 0;
+      this.data = null;
+      this.selected = [];
+      this.done = new Set();
       this.timers = {};
-
       this.init();
     }
 
     init() {
-      securitySystem.init();
-      this.extractDownloadUrl();
-      this.selectRandomTasks();
+      this.initParticles();
+      this.extract();
+      if (!this.data || !this.data.url) return this.showError();
+      this.renderUI();
       this.renderTasks();
-      this.setupEventListeners();
     }
 
-    extractDownloadUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get("download_url");
-
-      if (encoded) {
-        try {
-          this.downloadUrl = atob(encoded);
-        } catch (e) {
-          console.error("Invalid URL parameter");
-        }
+    initParticles() {
+      if (typeof particlesJS !== "undefined") {
+        particlesJS("particles-js", {
+          particles: {
+            number: { value: 50, density: { enable: true, value_area: 800 } },
+            color: { value: "#6366f1" },
+            opacity: { value: 0.3 },
+            size: { value: 3, random: true },
+            line_linked: { enable: true, distance: 150, color: "#6366f1", opacity: 0.2, width: 1 },
+            move: { enable: true, speed: 2 }
+          },
+          interactivity: {
+            events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" } }
+          },
+          retina_detect: true
+        });
       }
     }
 
-    selectRandomTasks() {
-      const shuffled = [...taskPool].sort(() => Math.random() - 0.5);
-      this.selectedTasks = shuffled.slice(0, 3);
+    unforge(auth) {
+      try {
+        const pad = (s) => s + '='.repeat((4 - s.length % 4) % 4);
+        let s1 = atob(pad(auth));
+        if (!s1.startsWith("st_") || !s1.endsWith("_tp")) return null;
+        let c = atob(pad(s1.substring(3, s1.length - 3)));
+        let clean = "";
+        for (let i = 0; i < c.length; i++) {
+          if (i % 6 !== 1) {
+            clean += c[i];
+          }
+        }
+        let json = clean.split('').map(x => String.fromCharCode(x.charCodeAt(0) - 3)).join('');
+        return JSON.parse(decodeURIComponent(escape(atob(pad(json)))));
+      } catch (e) { return null; }
+    }
+
+    extract() {
+      const p = new URLSearchParams(window.location.search);
+      const v = p.get("v");
+      if (v) this.data = this.unforge(v);
+    }
+
+    renderUI() {
+      const title    = document.getElementById('fileTitle');
+      const fileDesc = document.getElementById('fileDesc');
+      const logo     = document.getElementById('logoArea');
+      const media    = document.getElementById('mediaBox');
+      const bodyBg   = document.getElementById('bodyBg');
+
+      if (this.data.title) title.innerText = this.data.title;
+
+      if (fileDesc) {
+        fileDesc.innerText = this.data.desc
+          ? this.data.desc
+          : 'Complete the steps on the right to unlock your secure download link.';
+      }
+
+      if (this.data.cover) {
+        bodyBg.style.backgroundImage = `url('${this.data.cover}')`;
+      }
+
+      if (this.data.album) {
+        logo.innerHTML = `<img src="${this.data.album}" alt="Brand Logo">`;
+        logo.style.background = 'none';
+        logo.style.border = 'none';
+        logo.style.boxShadow = 'none';
+      }
+
+      if (this.data.yt) {
+        // Use stored full embed src if available, else build from ID
+        const embedSrc = this.data.ytSrc || ('https://www.youtube.com/embed/' + this.data.yt);
+        const thumbId  = this.data.yt;
+        media.innerHTML = `
+          <div class="yt-wrapper" id="ytBox">
+            <div class="yt-thumb" id="ytThumb" onclick="loadYT()" style="cursor:pointer;position:absolute;inset:0;background:#000 url('https://i.ytimg.com/vi/${thumbId}/hqdefault.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;">
+              <div style="width:68px;height:48px;background:rgba(255,0,0,0.9);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                <svg viewBox='0 0 24 24' width='28' height='28' fill='white'><path d='M8 5v14l11-7z'/></svg>
+              </div>
+            </div>
+          </div>
+          <script>
+            function loadYT() {
+              document.getElementById('ytThumb').style.display = 'none';
+              var f = document.createElement('iframe');
+              f.src = '${embedSrc}' + (('${embedSrc}'.indexOf('?') > -1) ? '&' : '?') + 'autoplay=1';
+              f.setAttribute('frameborder','0');
+              f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+              f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+              f.setAttribute('allowfullscreen','');
+              f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+              document.getElementById('ytBox').appendChild(f);
+            }
+          <\/script>`;
+      } else if (this.data.cover) {
+        media.innerHTML = `<img src="${this.data.cover}" alt="Cover" style="width:100%;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,0.55);display:block;">`;
+      }
     }
 
     renderTasks() {
-      const container = document.getElementById("tasksContainer");
-      container.innerHTML = "";
+      this.selected = [...taskPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+      const list = document.getElementById('tasksList');
+      list.innerHTML = "";
 
-      this.selectedTasks.forEach((task, index) => {
-        const taskElement = document.createElement("div");
-        taskElement.className = "task-item";
-        taskElement.id = `task-${task.id}`;
-
-        const buttonText = task.buttonText || "Click Me";
-        const buttonIcon = task.link
-          ? '<i class="fas fa-external-link-alt"></i>'
-          : '<i class="fas fa-play"></i>';
-
-        taskElement.innerHTML = `
-                            <div class="task-header">
-                                <div class="task-status">
-                                    <i class="fas fa-circle"></i>
-                                </div>
-                                <div class="task-title">Step ${index + 1}: ${task.title}</div>
-                            </div>
-                            <div class="task-description">${task.description}</div>
-                            <button class="task-button" data-task-id="${task.id}" ${index !== 0 ? "disabled" : ""}>
-                                ${buttonIcon}
-                                <span>${buttonText}</span>
-                            </button>
-                            <div class="timer-display" id="timer-${task.id}" style="display: none;"></div>
-                        `;
-
-        container.appendChild(taskElement);
+      this.selected.forEach((t, i) => {
+        const el = document.createElement('div');
+        el.className = `task-item ${i === 0 ? 'active' : ''}`;
+        el.id = `task-${t.id}`;
+        el.innerHTML = `
+          <div class="task-info">
+            <div class="task-title">Step ${i+1}: ${t.title}</div>
+            <div class="task-desc">${t.description}</div>
+          </div>
+          <button class="btn btn-primary task-btn" data-id="${t.id}" ${i !== 0 ? 'disabled' : ''}>
+            <i class="fas fa-external-link-alt"></i>
+            <span>${t.buttonText}</span>
+          </button>
+          <div class="timer" id="timer-${t.id}" style="display:none"></div>
+        `;
+        list.appendChild(el);
+        el.querySelector('.task-btn').onclick = () => this.startTask(t.id);
       });
     }
 
-    setupEventListeners() {
-      document.querySelectorAll(".task-button").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          const taskId = parseInt(e.currentTarget.dataset.taskId);
-          this.startTask(taskId);
-        });
-      });
-    }
+    startTask(id) {
+      const t = this.selected.find(x => x.id === id);
+      const el = document.getElementById(`task-${id}`);
+      const btn = el.querySelector('.task-btn');
+      const timer = document.getElementById(`timer-${id}`);
 
+      window.open(t.link, "_blank");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> <span>Verifying...</span>`;
+      timer.style.display = "block";
 
-    startTask(taskId) {
-      const task = this.selectedTasks.find((t) => t.id === taskId);
-      if (!task) return;
-
-      const taskElement = document.getElementById(`task-${taskId}`);
-      const button = taskElement.querySelector(".task-button");
-      const timerDisplay = document.getElementById(`timer-${taskId}`);
-
-      // Open link if available
-      if (task.link) {
-        window.open(task.link, "_blank");
-      }
-
-      taskElement.classList.add("active");
-      button.disabled = true;
-      button.innerHTML =
-        '<i class="fas fa-spinner fa-spin"></i><span>In Progress...</span>';
-      button.classList.add("in-progress");
-      timerDisplay.style.display = "block";
-
-      let timeRemaining = task.duration;
-
-      this.timers[taskId] = setInterval(() => {
+      let left = t.duration;
+      this.timers[id] = setInterval(() => {
         if (document.hidden) {
-          timerDisplay.innerHTML =
-            '<i class="fas fa-pause-circle"></i> Paused - Please focus on this tab';
+          timer.innerHTML = `<i class="fas fa-pause"></i> Paused: Please stay focused`;
           return;
         }
-
-        timeRemaining--;
-        timerDisplay.innerHTML = `<i class="fas fa-clock"></i> ${timeRemaining}s remaining`;
-
-        if (timeRemaining <= 0) {
-          this.completeTask(taskId);
-        }
+        left--;
+        timer.innerHTML = `<i class="fas fa-clock"></i> Verification in ${left}s`;
+        if (left <= 0) this.completeTask(id);
       }, 1000);
     }
 
-    completeTask(taskId) {
-      clearInterval(this.timers[taskId]);
+    completeTask(id) {
+      clearInterval(this.timers[id]);
+      const el = document.getElementById(`task-${id}`);
+      const btn = el.querySelector('.task-btn');
+      const timer = document.getElementById(`timer-${id}`);
 
-      const taskElement = document.getElementById(`task-${taskId}`);
-      const button = taskElement.querySelector(".task-button");
-      const timerDisplay = document.getElementById(`timer-${taskId}`);
+      el.classList.remove('active');
+      el.classList.add('completed');
+      btn.innerHTML = `<i class="fas fa-check-circle"></i> <span>Verified</span>`;
+      btn.className = "btn btn-success";
+      timer.style.display = "none";
 
-      taskElement.classList.remove("active");
-      taskElement.classList.add("completed");
-      button.innerHTML =
-        '<i class="fas fa-check-circle"></i><span>Completed</span>';
-      timerDisplay.style.display = "none";
+      this.done.add(id);
+      const prog = (this.done.size / this.selected.length) * 100;
+      document.getElementById('progressBar').style.width = `${prog}%`;
 
-      this.completedTasks.add(taskId);
-      this.updateProgress();
-
-      // Enable next task
-      const currentIndex = this.selectedTasks.findIndex((t) => t.id === taskId);
-      if (currentIndex < this.selectedTasks.length - 1) {
-        const nextTask = this.selectedTasks[currentIndex + 1];
-        const nextButton = document.querySelector(
-          `[data-task-id="${nextTask.id}"]`,
-        );
-        nextButton.disabled = false;
-      }
-
-      // Check if all tasks completed
-      if (this.completedTasks.size === this.selectedTasks.length) {
-        this.enableDownload();
+      const idx = this.selected.findIndex(x => x.id === id);
+      if (idx < this.selected.length - 1) {
+        const next = this.selected[idx + 1];
+        const nextEl = document.getElementById(`task-${next.id}`);
+        nextEl.classList.add('active');
+        nextEl.querySelector('.task-btn').disabled = false;
+      } else {
+        const dBtn = document.getElementById('downloadBtn');
+        dBtn.disabled = false;
+        dBtn.innerHTML = `<i class="fas fa-unlock-alt"></i> <span>Download File</span>`;
+        dBtn.onclick = () => window.open(this.data.url, "_blank");
       }
     }
 
-    updateProgress() {
-      const progress =
-        (this.completedTasks.size / this.selectedTasks.length) * 100;
-      document.getElementById("progressBar").style.width = `${progress}%`;
-    }
-
-    enableDownload() {
-      const downloadBtn = document.getElementById("downloadBtn");
-      downloadBtn.disabled = false;
-      downloadBtn.innerHTML =
-        '<i class="fas fa-lock-open"></i><span>GET YOUR FILE NOW!</span>';
-      downloadBtn.classList.add("ready");
-
-      downloadBtn.addEventListener("click", () => {
-        if (this.downloadUrl) {
-          window.location.href = this.downloadUrl;
-        } else {
-          alert("Download URL not available");
-        }
-      });
+    showError() {
+      document.getElementById('mainContainer').innerHTML = `
+        <div style="padding:60px; text-align:center; width:100%">
+          <i class="fas fa-link-slash" style="font-size:50px; color:#ef4444; margin-bottom:20px"></i>
+          <h1>Expired or Invalid</h1>
+          <p style="color:var(--text-muted); margin-top:10px">The secure session has expired.</p>
+          <div style="margin-top:30px">
+            <a href="https://skytup.com" class="btn btn-primary" style="display:inline-flex; width:auto">Return Home</a>
+          </div>
+        </div>
+      `;
     }
   }
 
-  // Initialize the download manager
-  new DownloadManager();
+  new Verifier();
 })();

@@ -4,59 +4,67 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <title>Unlock Your Exclusive File!</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <title>Secure Access | Verification Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header class="top-header">
-      <div class="blinking-dot"></div>
-      <span>Limited Time Download! Act Fast!</span>
-    </header>
+    <div class="body-bg" id="bodyBg"></div>
+    <div class="body-overlay"></div>
+    <div id="particles-js"></div>
 
     <div class="container" id="mainContainer">
-      <div class="header">
-        <div class="header-icon">
-          <i class="fas fa-gift"></i>
+
+      <!-- LEFT: Branding -->
+      <section class="branding-section">
+        <div class="logo-box" id="logoArea">
+          <i class="fas fa-shield-halved"></i>
         </div>
-        <h1>Your EXCLUSIVE File is Almost Ready!</h1>
-        <p>Just complete these simple steps to unlock your download!</p>
-      </div>
 
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressBar"></div>
-      </div>
+        <h1 id="fileTitle">Identity Verification</h1>
 
-      <div class="instruction-box">
-        <p>
-          <i class="fas fa-exclamation-triangle"></i> You're so close! Finish the tasks to get your file!
-        </p>
-      </div>
+        <p class="desc-text" id="fileDesc">Complete the steps on the right to unlock your secure download link.</p>
 
-      <div class="tasks-container" id="tasksContainer"></div>
+        <!-- YouTube embed or cover image -->
+        <div class="media-box" id="mediaBox"></div>
+      </section>
 
-      <div class="download-section">
-        <button class="download-button" id="downloadBtn" disabled>
-          <i class="fas fa-lock"></i>
-          <span>UNLOCK DOWNLOAD</span>
-        </button>
-      </div>
+      <!-- RIGHT: Actions -->
+      <section class="action-section">
+
+        <!-- Progress bar -->
+        <div class="progress-container">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressBar"></div>
+          </div>
+        </div>
+
+        <!-- Section heading -->
+        <div class="unlock-heading">
+          <i class="fas fa-lock-open"></i>
+          <span>To unlock your download link, complete these tasks</span>
+        </div>
+
+        <!-- Task list -->
+        <div class="tasks-container" id="tasksList"></div>
+
+        <!-- Unlock button -->
+        <div class="download-wrap">
+          <button class="btn btn-primary" id="downloadBtn" disabled>
+            <i class="fas fa-lock"></i>
+            <span>Unlock Access</span>
+          </button>
+        </div>
+
+      </section>
     </div>
 
-    <div class="footer">
-      <p>
-        Copyright &copy; 2026
-        <a href="https://skytup.com" target="_blank">skytup.com</a> | Follow on
-        <a href="https://github.com/akash2v" target="_blank">Github</a>
-      </p>
-    </div>
+    <!-- Footer outside container -->
+    <footer class="footer">
+      <p>&copy; 2026 <a href="https://skytup.com" target="_blank">skytup.com</a> &mdash; All rights reserved.</p>
+    </footer>
 
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
