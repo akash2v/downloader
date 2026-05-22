@@ -301,9 +301,17 @@ p.desc-text {
 .download-wrap { margin-top: 4px; }
 
 /* ── YouTube Thumbnail play button hover ── */
-.yt-thumb:hover > div {
-  transform: scale(1.1);
-  transition: transform 0.2s ease;
+.yt-play-btn {
+  width: 68px; height: 48px;
+  background: rgba(255,0,0,0.92);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#ytThumb:hover .yt-play-btn {
+  transform: scale(1.12);
+  background: rgb(255,0,0);
 }
 
 /* ── Unlock heading above tasks ── */

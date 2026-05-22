@@ -1,14 +1,38 @@
 (function () {
   "use strict";
 
+  const UNLOCK_TTL = 60 * 60 * 1000; // 1 hour in ms
+
+  function storageKey(v) { return 'st_unlock_' + v; }
+
+  function isUnlocked(v) {
+    try {
+      const raw = localStorage.getItem(storageKey(v));
+      if (!raw) return false;
+      const { ts } = JSON.parse(raw);
+      return (Date.now() - ts) < UNLOCK_TTL;
+    } catch (e) { return false; }
+  }
+
+  function saveUnlock(v) {
+    try { localStorage.setItem(storageKey(v), JSON.stringify({ ts: Date.now() })); } catch (e) {}
+  }
+
+  function getExpiryMins(v) {
+    try {
+      const raw = localStorage.getItem(storageKey(v));
+      if (!raw) return 0;
+      const { ts } = JSON.parse(raw);
+      return Math.max(0, Math.ceil((UNLOCK_TTL - (Date.now() - ts)) / 60000));
+    } catch (e) { return 0; }
+  }
+
   const taskPool = [
-    { id: 1, title: "Official YouTube", description: "Follow our channel for official file updates and tutorials.", duration: 15, link: "https://youtube.com/@skytup/?sub_confirmation=1", buttonText: "Subscribe Now" },
-    { id: 2, title: "Instagram Profile", description: "Stay connected with our team on Instagram for news.", duration: 15, link: "https://instagram.com/skytupnet", buttonText: "Follow Us" },
-    { id: 3, title: "Telegram Channel", description: "Join our community for instant download alerts.", duration: 15, link: "https://t.me/skytupnet", buttonText: "Join Channel" },
-    { id: 4, title: "Facebook Hub", description: "Like our official page to join the community.", duration: 15, link: "https://facebook.com/skytup", buttonText: "Like Page" },
-    { id: 5, title: "Corporate Website", description: "Visit our main portal for more exclusive resources.", duration: 15, link: "https://www.skytup.com", buttonText: "Visit Portal" },
-    { id: 6, title: "Twitter / X", description: "Get real-time updates and community news.", duration: 15, link: "https://twitter.com/skythecoder", buttonText: "Follow Updates" },
-    { id: 7, title: "GitHub Projects", description: "Explore our open-source codebase and projects.", duration: 15, link: "https://github.com/akash2v", buttonText: "Explore Repo" },
+    { id: 1, title: "Subscribe On YouTube", description: "Follow our channel for official file updates and tutorials.", duration: 15, link: "https://youtube.com/@skytup/?sub_confirmation=1", buttonText: "Subscribe Now" },
+    { id: 2, title: "Follow us on Instagram", description: "Stay connected with our team on Instagram for news.", duration: 15, link: "https://instagram.com/skytupnet", buttonText: "Follow Us" },
+    { id: 3, title: "Follow Telegram Channel", description: "Join our community for instant download alerts.", duration: 15, link: "https://t.me/skytupnet", buttonText: "Join Channel" },
+    { id: 4, title: "Follow on Facebook", description: "Like our official page to join the community.", duration: 15, link: "https://facebook.com/skytup", buttonText: "Like Page" },
+    { id: 6, title: "Follow on X", description: "Get real-time updates and community news.", duration: 15, link: "https://twitter.com/skythecoder", buttonText: "Follow Updates" },
   ];
 
   class Verifier {
@@ -25,7 +49,11 @@
       this.extract();
       if (!this.data || !this.data.url) return this.showError();
       this.renderUI();
-      this.renderTasks();
+      if (isUnlocked(this.vParam)) {
+        this.showAlreadyUnlocked();
+      } else {
+        this.renderTasks();
+      }
     }
 
     initParticles() {
@@ -66,8 +94,8 @@
 
     extract() {
       const p = new URLSearchParams(window.location.search);
-      const v = p.get("v");
-      if (v) this.data = this.unforge(v);
+      this.vParam = p.get("v") || '';
+      if (this.vParam) this.data = this.unforge(this.vParam);
     }
 
     renderUI() {
@@ -77,7 +105,10 @@
       const media    = document.getElementById('mediaBox');
       const bodyBg   = document.getElementById('bodyBg');
 
-      if (this.data.title) title.innerText = this.data.title;
+      if (this.data.title) {
+        title.innerText = this.data.title;
+        document.title = this.data.title;
+      }
 
       if (fileDesc) {
         fileDesc.innerText = this.data.desc
@@ -97,37 +128,52 @@
       }
 
       if (this.data.yt) {
-        // Use stored full embed src if available, else build from ID
         const embedSrc = this.data.ytSrc || ('https://www.youtube.com/embed/' + this.data.yt);
         const thumbId  = this.data.yt;
+        const autoSrc  = embedSrc + (embedSrc.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1';
+
         media.innerHTML = `
           <div class="yt-wrapper" id="ytBox">
-            <div class="yt-thumb" id="ytThumb" onclick="loadYT()" style="cursor:pointer;position:absolute;inset:0;background:#000 url('https://i.ytimg.com/vi/${thumbId}/hqdefault.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;">
-              <div style="width:68px;height:48px;background:rgba(255,0,0,0.9);border-radius:12px;display:flex;align-items:center;justify-content:center;">
-                <svg viewBox='0 0 24 24' width='28' height='28' fill='white'><path d='M8 5v14l11-7z'/></svg>
+            <div id="ytThumb" style="cursor:pointer;position:absolute;inset:0;background:#000 url('https://i.ytimg.com/vi/${thumbId}/hqdefault.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;border-radius:inherit;">
+              <div class="yt-play-btn">
+                <svg viewBox='0 0 24 24' width='30' height='30' fill='white'><path d='M8 5v14l11-7z'/></svg>
               </div>
             </div>
-          </div>
-          <script>
-            function loadYT() {
-              document.getElementById('ytThumb').style.display = 'none';
-              var f = document.createElement('iframe');
-              f.src = '${embedSrc}' + (('${embedSrc}'.indexOf('?') > -1) ? '&' : '?') + 'autoplay=1';
-              f.setAttribute('frameborder','0');
-              f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-              f.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-              f.setAttribute('allowfullscreen','');
-              f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
-              document.getElementById('ytBox').appendChild(f);
-            }
-          <\/script>`;
+          </div>`;
+
+        document.getElementById('ytThumb').addEventListener('click', function () {
+          this.remove();
+          const f = document.createElement('iframe');
+          f.src = autoSrc;
+          f.setAttribute('frameborder', '0');
+          f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+          f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+          f.setAttribute('allowfullscreen', '');
+          f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+          document.getElementById('ytBox').appendChild(f);
+        });
       } else if (this.data.cover) {
-        media.innerHTML = `<img src="${this.data.cover}" alt="Cover" style="width:100%;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,0.55);display:block;">`;
+        media.innerHTML = `
+          <div class="yt-wrapper">
+            <img src="${this.data.cover}" alt="Cover" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">
+          </div>`;
       }
     }
 
     renderTasks() {
-      this.selected = [...taskPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+      // Use custom links if provided, else fall back to default pool
+      if (this.data.customLinks && this.data.customLinks.length) {
+        this.selected = this.data.customLinks.map((cl, i) => ({
+          id: i + 1,
+          title: cl.title,
+          description: cl.link,
+          duration: 15,
+          link: cl.link,
+          buttonText: cl.buttonText || 'Visit'
+        }));
+      } else {
+        this.selected = [...taskPool].sort(() => 0.5 - Math.random()).slice(0, 3);
+      }
       const list = document.getElementById('tasksList');
       list.innerHTML = "";
 
@@ -197,6 +243,7 @@
         nextEl.classList.add('active');
         nextEl.querySelector('.task-btn').disabled = false;
       } else {
+        saveUnlock(this.vParam);
         const dBtn = document.getElementById('downloadBtn');
         dBtn.disabled = false;
         dBtn.innerHTML = `<i class="fas fa-unlock-alt"></i> <span>Download File</span>`;
@@ -204,14 +251,42 @@
       }
     }
 
+    showAlreadyUnlocked() {
+      const mins = getExpiryMins(this.vParam);
+      const tasksList = document.getElementById('tasksList');
+      tasksList.innerHTML = `
+        <div style="background:rgba(16,185,129,0.07);border:1.5px solid rgba(16,185,129,0.35);border-radius:18px;padding:22px 20px;display:flex;align-items:center;gap:16px;">
+          <div style="width:44px;height:44px;flex-shrink:0;background:rgba(16,185,129,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-check-circle" style="color:#10b981;font-size:20px;"></i>
+          </div>
+          <div>
+            <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;color:#10b981;margin-bottom:4px;">Already Verified</div>
+            <div style="font-size:12.5px;color:var(--text-muted);line-height:1.5;">Your access is active for another <strong style="color:var(--text-main);">${mins} minute${mins !== 1 ? 's' : ''}</strong>. No tasks needed.</div>
+          </div>
+        </div>`;
+      document.getElementById('progressBar').style.width = '100%';
+      const dBtn = document.getElementById('downloadBtn');
+      dBtn.disabled = false;
+      dBtn.innerHTML = `<i class="fas fa-unlock-alt"></i> <span>Download File</span>`;
+      dBtn.onclick = () => window.open(this.data.url, "_blank");
+    }
+
     showError() {
+      const base = window.location.href.replace(/\/[^/]*$/, '');
       document.getElementById('mainContainer').innerHTML = `
-        <div style="padding:60px; text-align:center; width:100%">
-          <i class="fas fa-link-slash" style="font-size:50px; color:#ef4444; margin-bottom:20px"></i>
-          <h1>Expired or Invalid</h1>
-          <p style="color:var(--text-muted); margin-top:10px">The secure session has expired.</p>
-          <div style="margin-top:30px">
-            <a href="https://skytup.com" class="btn btn-primary" style="display:inline-flex; width:auto">Return Home</a>
+        <div style="padding:70px 40px;text-align:center;width:100%;display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:90px;height:90px;background:rgba(239,68,68,0.08);border:2px solid rgba(239,68,68,0.4);border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 0 30px rgba(239,68,68,0.15);">
+            <i class="fas fa-link-slash" style="font-size:38px;color:#ef4444;"></i>
+          </div>
+          <h1 style="font-family:'Outfit',sans-serif;font-size:clamp(24px,4vw,36px);font-weight:900;background:linear-gradient(135deg,#fff 30%,#f87171 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;">Invalid or Expired Link</h1>
+          <p style="color:var(--text-muted);font-size:14px;line-height:1.6;max-width:360px;margin-bottom:36px;">This secure link is invalid or has expired. Create a fresh one using the link forge below.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
+            <a href="${base}/create.html" style="display:inline-flex;align-items:center;gap:10px;padding:15px 28px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;text-decoration:none;text-transform:uppercase;letter-spacing:0.7px;box-shadow:0 8px 24px -4px rgba(99,102,241,0.5);transition:all 0.25s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+              <i class="fas fa-bolt"></i> Create New Link
+            </a>
+            <a href="https://skytup.com" target="_blank" style="display:inline-flex;align-items:center;gap:10px;padding:15px 28px;border-radius:14px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);color:var(--text-muted);font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;text-decoration:none;text-transform:uppercase;letter-spacing:0.7px;transition:all 0.25s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='var(--text-muted)'">
+              <i class="fas fa-house"></i> Return Home
+            </a>
           </div>
         </div>
       `;
